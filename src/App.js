@@ -1,9 +1,9 @@
-import MyApp from './MyApp';
+import Main from './pages/main/main';
 
 function App() {
   return (
     <div>
-      <MyApp />
+      <Main />
     </div>
   );
 }
