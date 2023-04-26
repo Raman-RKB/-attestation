@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useDispatch, useSelector } from "react-redux";
 import Pagination from './pagination';
 import User from './user';
@@ -26,14 +26,42 @@ const MyComponent = () => {
   const [searchInputValue, setSearchInputValue] = useState("");
   const [searchValue, setSearchValue] = useState("");
   const [pageSet, setPageSet] = useState();
-  const [clickedPage, setClickedPage] = useState(1);
+  const [clickedPage, setClickedPage] = useState();
   const [SortAsc, setSortAsc] = useState(false);
   const [SortDesc, setSortDesc] = useState(false);
-  const { data, error } = useGetUsersQuery({ userName: searchValue, page: clickedPage });
-  const { data: usersSortAsc, error: usersSortAscErr } = useGetUsersByAscendingRepsQuantityQuery({ userName: searchValue, page: clickedPage });
-  const { data: usersSortDesc, error: usersSortDescErr } = useGetUsersByDescendingRepsQuantityQuery({ userName: searchValue, page: clickedPage });
+  const [searchButtonClicked, setSearchButtonClicked] = useState(false);
+  setSearchButtonClicked
   const dispatch = useDispatch();
   const users = useSelector(state => state.users);
+  const previousClickedPageRef = useRef(clickedPage);
+
+  const { data, error } = useGetUsersQuery({
+    userName: !SortAsc && !SortDesc ? searchValue : '',
+    page: !SortAsc && !SortDesc ? clickedPage : ''
+  });
+
+  const { data: usersSortAsc, error: usersSortAscErr } = useGetUsersByAscendingRepsQuantityQuery({
+    userName: SortAsc ? searchValue : '',
+    page: SortAsc ? clickedPage : ''
+  });
+
+  const { data: usersSortDesc, error: usersSortDescErr } = useGetUsersByDescendingRepsQuantityQuery({
+    userName: SortDesc ? searchValue : '',
+    page: SortDesc ? clickedPage : ''
+  });
+
+  const handlePageClick = async (event) => {
+    const target = event?.target.textContent;
+    setClickedPage(+target);
+    if (error && !SortAsc && !SortDesc && data) {
+      setClickedPage(previousClickedPageRef.current ? previousClickedPageRef.current : 1);
+    } else if (SortAsc && usersSortAscErr) {
+      setClickedPage(previousClickedPageRef?.current ? previousClickedPageRef.current : 1);
+    } else if (SortDesc && usersSortDescErr) {
+      setClickedPage(previousClickedPageRef?.current ? previousClickedPageRef.current : 1);
+    }
+    previousClickedPageRef.current = clickedPage;
+  }
 
   const handleForwardButtonClick = (event) => {
     event.preventDefault()
@@ -52,35 +80,26 @@ const MyComponent = () => {
     setPageSet(pageSet % 10 === 0 ? pageSet - 10 : Math.floor(pageSet / 10) * 10);
   }
 
-  const handlePageClick = (event) => {
-    const target = event.target.textContent;
-    if (!error && !SortAsc && !SortDesc) {
-      setClickedPage(+target);
-    } else if (SortAsc && !usersSortAscErr) {
-      setClickedPage(+target);
-    } else if (SortDesc && !usersSortDescErr) {
-      setClickedPage(+target);
-    }
-  }
-
   const handleSearchInputChange = (event) => {
     setSearchInputValue(event.target.value);
   }
 
-  const handleSearchClick = async (page) => {
+  const handleSearchClick = async (event, page) => {
+    console.log(typeof (page), page, 'page')
+    setSearchButtonClicked(+page === Number ? false : true);
     setSearchValue(searchInputValue);
     if (!SortAsc && !SortDesc) {
       const items = data?.items;
       dispatch(pushUsersToStore(items));
-      setClickedPage(page ? +page : 1);
+      setClickedPage(page && searchInputValue === searchValue ? +page : 1);
     } else if (SortAsc) {
       const items = usersSortAsc?.items;
       dispatch(pushUsersToStore(items));
-      setClickedPage(page ? +page : 1);
-    } else {
+      setClickedPage(page && searchInputValue === searchValue ? +page : 1);
+    } else if (SortDesc) {
       const items = usersSortDesc?.items;
       dispatch(pushUsersToStore(items));
-      setClickedPage(page ? +page : 1);
+      setClickedPage(page && searchInputValue === searchValue ? +page : 1);
     }
   };
 
@@ -117,6 +136,33 @@ const MyComponent = () => {
     }
   }, [data]);
 
+  //---------------Под вопросом надо это или нет-------------------------------------------------
+  useEffect(() => {
+    if (usersSortAsc?.total_count > 300) {
+      setPageSet(pageSet && pageSet > 10 ? pageSet : 10);
+      handleSearchClick(clickedPage ? clickedPage : 1);
+    } else if (usersSortAsc?.total_count <= 30) {
+      handleSearchClick(clickedPage ? clickedPage : 1);
+      setPageSet(1);
+    } else if (usersSortAsc?.total_count > 30 && usersSortAsc?.total_count < 300) {
+      setPageSet(Math.ceil(usersSortAsc?.total_count / 30));
+      handleSearchClick(clickedPage ? clickedPage : 1);
+    }
+  }, [usersSortAsc]);
+
+  useEffect(() => {
+    if (usersSortDesc?.total_count > 300) {
+      setPageSet(pageSet && pageSet > 10 ? pageSet : 10);
+      handleSearchClick(clickedPage ? clickedPage : 1);
+    } else if (usersSortDesc?.total_count <= 30) {
+      handleSearchClick(clickedPage ? clickedPage : 1);
+      setPageSet(1);
+    } else if (usersSortDesc?.total_count > 30 && usersSortDesc?.total_count < 300) {
+      setPageSet(Math.ceil(usersSortDesc?.total_count / 30));
+      handleSearchClick(clickedPage ? clickedPage : 1);
+    }
+  }, [usersSortDesc]);
+  //-----------------------------------------------------------------------------------------------
   useEffect(() => {
     if (SortAsc) {
       sortByAscending()
@@ -130,8 +176,11 @@ const MyComponent = () => {
   }, [usersSortDesc]);
 
   useEffect(() => {
-    console.log(pageSet, typeof (pageSet), 'pageSet,typeof(pageSet)');
-  }, [pageSet]);
+    console.log(searchButtonClicked, 'searchButtonClicked')
+    if (clickedPage === 1 && searchButtonClicked) {
+      setPageSet()
+    }
+  }, [clickedPage]);
 
   return (
     <RootContainer>
@@ -193,7 +242,7 @@ const MyComponent = () => {
         </PaginationPageNumberContainer>
         <ForwardButton
           onClick={handleForwardButtonClick}
-          disabled={data?.total_count - pageSet * 30 <= 300 && 1000 - pageSet * 30 <= 300 ? true : false}
+          disabled={data?.total_count <= 30 || data?.total_count - pageSet * 30 <= 0 || 1000 - pageSet * 30 <= 0 ? true : false}
         >Forward</ForwardButton>
       </PaginationContainer>
     </RootContainer>
