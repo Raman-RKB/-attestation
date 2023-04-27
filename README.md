@@ -1,71 +1,32 @@
-# Getting Started with Create React App
+# Attainment App
+## Description
+This is a simple React application that allows you to search for GitHub users and view their profile information. The app uses the GitHub API to fetch user data and displays it in a paginated list. You can click on a user's name to view their profile page.
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Features
+Search for GitHub users
+Paginated user list
+View user profile information
+## Installation and Usage
+Clone the repository: git clone https://github.com/Raman-RKB/-attestation.git
+Navigate to the project directory: cd -attestation
+Install dependencies: npm install
+Start the app: npm start
+Open your browser and go to http://localhost:3000
+## How to Add Your GitHub Token
+To increase the rate limit for the GitHub API, you can add your GitHub token to the services.js file. Follow the steps below:
 
-## Available Scripts
-
-In the project directory, you can run:
-
-### `npm start`
-
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
-
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
-
-### `npm test`
-
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
-
-### `npm run build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
-# course_4_main
+Go to https://github.com/settings/tokens and generate a new personal access token with the repo scope.
+In the project directory, open the services.js file located in src/services/.
+Replace the value of the token variable with your personal access token.
+arduino
+Copy code
+### const token = "YOUR_PERSONAL_ACCESS_TOKEN_HERE";
+## File Structure
+src/pages/main/: contains the main components of the app
+src/services/: contains the API service to fetch data from the GitHub API
+src/Store/: contains the Redux store configuration
+src/index.js: the main entry point of the app
+src/App.js: the main app component
+## Contributing
+Contributions are always welcome! If you want to contribute, please fork the repository and create a pull request.
+## Youtube link tutorial 
