@@ -1,4 +1,7 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { useGetUserDataQuery } from '../../services/servises';
+import { useDispatch } from "react-redux";
+import { pushUsersDataToStore } from '../../Store/store';
 
 import {
     UserLogin
@@ -6,9 +9,22 @@ import {
 
 // eslint-disable-next-line react/prop-types
 const User = ({ login }) => {
+    const [userData, setUserData] = useState();
+    const { data } = useGetUserDataQuery(userData);
+    const dispatch = useDispatch();
+
+    const getUserData = async () => {
+        setUserData(login);
+    }
+
+    useEffect(() => {
+        if (data) {
+            dispatch(pushUsersDataToStore(data));
+        }
+    }, [data]);
 
     return (
-        <UserLogin>{login}</UserLogin>
+        <UserLogin onClick={getUserData}>{login}</UserLogin>
     );
 };
 

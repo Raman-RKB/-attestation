@@ -10,10 +10,18 @@ export const UserContainer = styled.div`
   display: ${props => props.user};
   flex-direction: column;
   align-items: center;
+  position: relative;
+`;
+
+export const DisplayUser = styled.span`
+ position: absolute;
+  font-size: 30px;
+  cursor: pointer;
+    right: 0;
 `;
 
 export const SearchContainer = styled.div`
-  width: 100%;
+  width: 50vw;
   padding: 16px;
   display: flex;
   align-items: center;
@@ -107,8 +115,8 @@ export const UserDetailLabel = styled.div`
 `;
 
 export const PaginationContainer = styled.div`
-    display: flex;
-        margin-top: 10px;
+    display: ${props => props.display};
+    margin-top: 10px;
 `;
 
 export const BackButton = styled.button`
@@ -175,16 +183,19 @@ export const UserListContainer = styled.div`
 `;
 
 export const UserLogin = styled.div`
+border: 1px dashed #e2dede;;
   font-weight: bold;
   cursor: pointer;
 
   &:hover {
-  background-color: #8e8b8c;
+  background-color: #e2dede;;
   }
 `;
 
 export const SortContainer = styled.div`
 display: ${props => props.display};
+    flex-direction: column;
+    align-items: center;
 `;
 
 export const RadioButtonContainer = styled.div`
@@ -192,3 +203,20 @@ export const RadioButtonContainer = styled.div`
     justify-content: center;
     margin-bottom: 20px;
 `;
+
+export const ResultContainer = styled.div`
+display: ${props => props.display};
+  width: 50vw;
+`;
+
+export const Input = styled.input`
+  cursor: pointer;
+`;
+
+export const ErrorDisp = styled.div`
+display: ${props => props.display};
+font-size: 35px;
+    color: red;
+    font-weight: bold;
+`;
+

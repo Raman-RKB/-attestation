@@ -19,7 +19,10 @@ import {
   PaginationPageNumberContainer,
   UserListContainer,
   SortContainer,
-  RadioButtonContainer
+  RadioButtonContainer,
+  ResultContainer,
+  Input,
+  ErrorDisp
 } from './css/styles';
 
 const MyComponent = () => {
@@ -29,8 +32,10 @@ const MyComponent = () => {
   const [clickedPage, setClickedPage] = useState();
   const [SortAsc, setSortAsc] = useState(false);
   const [SortDesc, setSortDesc] = useState(false);
-  const [searchButtonClicked, setSearchButtonClicked] = useState(false);
-  setSearchButtonClicked
+  const [resultDisplay, setResultDisplay] = useState(false);
+  const [paginationDisplay, setPaginationDisplay] = useState(false);
+  const [errorDisplay, setErrorDisplay] = useState(false);
+
   const dispatch = useDispatch();
   const users = useSelector(state => state.users);
   const previousClickedPageRef = useRef(clickedPage);
@@ -50,14 +55,24 @@ const MyComponent = () => {
     page: SortDesc ? clickedPage : ''
   });
 
+  const handleSearchInputChange = (event) => {
+    if (resultDisplay) {
+      setResultDisplay(false);
+    }
+    setSearchInputValue(event.target.value);
+  }
+
   const handlePageClick = async (event) => {
     const target = event?.target.textContent;
     setClickedPage(+target);
     if (error && !SortAsc && !SortDesc && data) {
+      console.log('Попало в error');
       setClickedPage(previousClickedPageRef.current ? previousClickedPageRef.current : 1);
     } else if (SortAsc && usersSortAscErr) {
+      console.log('Попало в error');
       setClickedPage(previousClickedPageRef?.current ? previousClickedPageRef.current : 1);
     } else if (SortDesc && usersSortDescErr) {
+      console.log('Попало в error');
       setClickedPage(previousClickedPageRef?.current ? previousClickedPageRef.current : 1);
     }
     previousClickedPageRef.current = clickedPage;
@@ -65,12 +80,18 @@ const MyComponent = () => {
 
   const handleForwardButtonClick = (event) => {
     event.preventDefault()
-    if (data?.total_count - pageSet * 30 > 300 && 1000 - pageSet * 30 > 300) {
+    if (usersSortDesc?.total_count - pageSet * 30 > 300 && 1000 - pageSet * 30 > 300 ||
+      usersSortAsc?.total_count - pageSet * 30 > 300 && 1000 - pageSet * 30 > 300 ||
+      data?.total_count - pageSet * 30 > 300 && 1000 - pageSet * 30 > 300) {
       setPageSet(pageSet + 10);
-    } else if (data?.total_count - pageSet * 30 <= 30) {
+    } else if (usersSortDesc?.total_count - pageSet * 30 <= 30 ||
+      usersSortAsc?.total_count - pageSet * 30 <= 30 ||
+      data?.total_count - pageSet * 30 <= 30) {
       setPageSet(pageSet + 1);
-    } else if (data?.total_count - pageSet * 30 > 30 &&
-      data?.total_count - pageSet * 30 < 300 || 1000 - pageSet * 30 < 300) {
+    } else if (usersSortDesc?.total_count - pageSet * 30 > 30 && usersSortDesc?.total_count - pageSet * 30 < 300 ||
+      usersSortAsc?.total_count - pageSet * 30 > 30 && usersSortAsc?.total_count - pageSet * 30 < 300 ||
+      data?.total_count - pageSet * 30 > 30 && data?.total_count - pageSet * 30 < 300 ||
+      1000 - pageSet * 30 < 300) {
       setPageSet(Math.ceil(data?.total_count <= 1000 ? (data?.total_count / 30) : (1000 / 30)));
     }
   }
@@ -80,13 +101,8 @@ const MyComponent = () => {
     setPageSet(pageSet % 10 === 0 ? pageSet - 10 : Math.floor(pageSet / 10) * 10);
   }
 
-  const handleSearchInputChange = (event) => {
-    setSearchInputValue(event.target.value);
-  }
-
-  const handleSearchClick = async (event, page) => {
-    console.log(typeof (page), page, 'page')
-    setSearchButtonClicked(+page === Number ? false : true);
+  const handleSearchClick = async (page) => {
+    setResultDisplay(true);
     setSearchValue(searchInputValue);
     if (!SortAsc && !SortDesc) {
       const items = data?.items;
@@ -103,66 +119,125 @@ const MyComponent = () => {
     }
   };
 
-  const sortByAscending = () => {
-    if (!SortAsc) {
-      setClickedPage(1);
+  useEffect(() => {
+    if (clickedPage === 1) {
+      if (data?.total_count > 300) {
+        setPageSet(10);
+        setPaginationDisplay(true);
+        handleSearchClick(1);
+      } else if (data?.total_count <= 30 && paginationDisplay) {
+        setPaginationDisplay(false);
+        handleSearchClick(1);
+      } else if (data?.total_count > 30 && data?.total_count < 300) {
+        setPageSet(Math.ceil(data?.total_count / 30));
+        setPaginationDisplay(true);
+        handleSearchClick(1);
+      }
+    } else {
+      if (data?.total_count > 300) {
+        setPageSet(pageSet && pageSet >= 10 ? pageSet : 10);
+        handleSearchClick(clickedPage ? clickedPage : 1);
+        setPaginationDisplay(true);
+      } else if (data?.total_count <= 30 && paginationDisplay) {
+        handleSearchClick(clickedPage ? clickedPage : 1);
+        setPaginationDisplay(false);
+      } else if (data?.total_count > 30 && data?.total_count < 300) {
+        setPageSet(Math.ceil(data?.total_count / 30));
+        handleSearchClick(clickedPage ? clickedPage : 1);
+        setPaginationDisplay(true);
+      }
     }
-    setSortAsc(true);
-    setSortDesc(false);
+
+  }, [data]);
+
+  useEffect(() => {
+
+    if (clickedPage === 1) {
+      if (usersSortAsc?.total_count > 300) {
+        setPageSet(10);
+        setPaginationDisplay(true);
+        handleSearchClick(1);
+      } else if (usersSortAsc?.total_count <= 30 && paginationDisplay) {
+        setPaginationDisplay(false);
+        handleSearchClick(1);
+      } else if (usersSortAsc?.total_count > 30 && usersSortAsc?.total_count < 300) {
+        setPageSet(Math.ceil(usersSortAsc?.total_count / 30));
+        setPaginationDisplay(true);
+        handleSearchClick(1);
+      }
+    } else {
+      if (usersSortAsc?.total_count > 300) {
+        setPageSet(pageSet && pageSet > 10 ? pageSet : 10);
+        handleSearchClick(clickedPage ? clickedPage : 1);
+        setPaginationDisplay(true);
+      } else if (usersSortAsc?.total_count <= 30 && paginationDisplay) {
+
+        handleSearchClick(clickedPage ? clickedPage : 1);
+        setPaginationDisplay(false);
+      } else if (usersSortAsc?.total_count > 30 && usersSortAsc?.total_count < 300) {
+        setPageSet(Math.ceil(usersSortAsc?.total_count / 30));
+        handleSearchClick(clickedPage ? clickedPage : 1);
+        setPaginationDisplay(true);
+      }
+    }
+  }, [usersSortAsc]);
+
+  useEffect(() => {
+    if (clickedPage === 1) {
+      if (usersSortDesc?.total_count > 300) {
+        setPageSet(10);
+        setPaginationDisplay(true);
+        handleSearchClick(1);
+      } else if (usersSortDesc?.total_count <= 30 && paginationDisplay) {
+        setPaginationDisplay(false);
+        handleSearchClick(1);
+      } else if (usersSortDesc?.total_count > 30 && usersSortDesc?.total_count < 300) {
+        setPageSet(Math.ceil(usersSortDesc?.total_count / 30));
+        setPaginationDisplay(true);
+        handleSearchClick(1);
+      }
+    } else {
+      if (usersSortDesc?.total_count > 300) {
+        setPageSet(pageSet && pageSet > 10 ? pageSet : 10);
+        handleSearchClick(clickedPage ? clickedPage : 1);
+        setPaginationDisplay(true);
+      } else if (usersSortDesc?.total_count <= 30 && paginationDisplay) {
+        handleSearchClick(clickedPage ? clickedPage : 1);
+        setPaginationDisplay(false);
+      } else if (usersSortDesc?.total_count > 30 && usersSortDesc?.total_count < 300) {
+        setPageSet(Math.ceil(usersSortDesc?.total_count / 30));
+        handleSearchClick(clickedPage ? clickedPage : 1);
+        setPaginationDisplay(true);
+      }
+    }
+  }, [usersSortDesc]);
+
+  const sortByAscending = () => {
+    if (!SortAsc && !SortDesc) {
+      setClickedPage(clickedPage === 1 ? 1 : clickedPage);
+      setSortAsc(true);
+    } else {
+      setClickedPage(clickedPage === 1 ? 1 : clickedPage);
+      setSortAsc(true);
+      setSortDesc(false);
+    }
     const items = usersSortAsc?.items
     dispatch(pushUsersToStore(items));
   }
 
   const sortByDescending = () => {
-    if (!SortDesc) {
-      setClickedPage(1);
+    if (!SortAsc && !SortDesc) {
+      setClickedPage(clickedPage === 1 ? 1 : clickedPage);
+      setSortDesc(true);
+    } else {
+      setClickedPage(clickedPage === 1 ? 1 : clickedPage);
+      setSortDesc(true);
+      setSortAsc(false);
     }
-    setSortDesc(true);
-    setSortAsc(false);
     const items = usersSortDesc?.items
     dispatch(pushUsersToStore(items));
   }
 
-  useEffect(() => {
-    if (data?.total_count > 300) {
-      setPageSet(pageSet && pageSet > 10 ? pageSet : 10);
-      handleSearchClick(clickedPage ? clickedPage : 1);
-    } else if (data?.total_count <= 30) {
-      handleSearchClick(clickedPage ? clickedPage : 1);
-      setPageSet(1);
-    } else if (data?.total_count > 30 && data?.total_count < 300) {
-      setPageSet(Math.ceil(data?.total_count / 30));
-      handleSearchClick(clickedPage ? clickedPage : 1);
-    }
-  }, [data]);
-
-  //---------------Под вопросом надо это или нет-------------------------------------------------
-  useEffect(() => {
-    if (usersSortAsc?.total_count > 300) {
-      setPageSet(pageSet && pageSet > 10 ? pageSet : 10);
-      handleSearchClick(clickedPage ? clickedPage : 1);
-    } else if (usersSortAsc?.total_count <= 30) {
-      handleSearchClick(clickedPage ? clickedPage : 1);
-      setPageSet(1);
-    } else if (usersSortAsc?.total_count > 30 && usersSortAsc?.total_count < 300) {
-      setPageSet(Math.ceil(usersSortAsc?.total_count / 30));
-      handleSearchClick(clickedPage ? clickedPage : 1);
-    }
-  }, [usersSortAsc]);
-
-  useEffect(() => {
-    if (usersSortDesc?.total_count > 300) {
-      setPageSet(pageSet && pageSet > 10 ? pageSet : 10);
-      handleSearchClick(clickedPage ? clickedPage : 1);
-    } else if (usersSortDesc?.total_count <= 30) {
-      handleSearchClick(clickedPage ? clickedPage : 1);
-      setPageSet(1);
-    } else if (usersSortDesc?.total_count > 30 && usersSortDesc?.total_count < 300) {
-      setPageSet(Math.ceil(usersSortDesc?.total_count / 30));
-      handleSearchClick(clickedPage ? clickedPage : 1);
-    }
-  }, [usersSortDesc]);
-  //-----------------------------------------------------------------------------------------------
   useEffect(() => {
     if (SortAsc) {
       sortByAscending()
@@ -176,11 +251,13 @@ const MyComponent = () => {
   }, [usersSortDesc]);
 
   useEffect(() => {
-    console.log(searchButtonClicked, 'searchButtonClicked')
-    if (clickedPage === 1 && searchButtonClicked) {
-      setPageSet()
+    if (error || usersSortAscErr || usersSortDescErr) {
+      setErrorDisplay(true);
+      setTimeout(() => {
+        setErrorDisplay(false);
+      }, 1000);
     }
-  }, [clickedPage]);
+  }, [error, usersSortAscErr, usersSortDescErr]);
 
   return (
     <RootContainer>
@@ -192,59 +269,61 @@ const MyComponent = () => {
         />
         <SearchButton onClick={handleSearchClick}>Search</SearchButton>
       </SearchContainer>
-      <SortContainer display={users.length ? 'block' : 'none'}>
-        <h3>Сортировать по количеству репозиториев:</h3>
-        <RadioButtonContainer>
-          <input
-            type="radio"
-            id="asc"
-            name="sortOrder"
-            value="asc"
-            onChange={sortByAscending}
-          />
-          <label htmlFor="asc">По возрастанию</label>
-          <input
-            type="radio"
-            id="desc"
-            name="sortOrder"
-            value="desc"
-            onChange={sortByDescending}
-          />
-          <label htmlFor="desc">По убыванию</label>
-        </RadioButtonContainer>
-      </SortContainer>
-      <UserListContainer>
-        <>
-          {users && users?.map((user) => (
-            // eslint-disable-next-line react/jsx-key
-            <UserList
-              key={user.id}
-              login={user.login}
-            />
-          ))}
-        </>
-      </UserListContainer>
-
+      <ErrorDisp display={errorDisplay ? 'block' : 'none'}>Ошибка загрузки</ErrorDisp>
       <User></User>
-      <PaginationContainer>
-        <BackButton onClick={handleBackButtonClick} disabled={pageSet <= 10 ? true : false}>Back</BackButton>
-        <PaginationPageNumberContainer onClick={handlePageClick}>
+      <ResultContainer display={resultDisplay ? 'block' : 'none'}>
+        <SortContainer display={users.length ? 'flex' : 'none'}>
+          <h3>Сортировать по количеству репозиториев:</h3>
+          <RadioButtonContainer>
+            <Input
+              type="radio"
+              id="asc"
+              name="sortOrder"
+              value="asc"
+              onChange={sortByAscending}
+            />
+            <label htmlFor="asc">По возрастанию</label>
+            <Input
+              type="radio"
+              id="desc"
+              name="sortOrder"
+              value="desc"
+              onChange={sortByDescending}
+            />
+            <label htmlFor="desc">По убыванию</label>
+          </RadioButtonContainer>
+        </SortContainer>
+        <UserListContainer>
           <>
-            {pageSet && (
+            {users && users?.map((user) => (
               // eslint-disable-next-line react/jsx-key
-              <Pagination
-                key={pageSet}
-                pageSet={pageSet}
-                clickedPage={clickedPage}
+              <UserList
+                key={user.id}
+                login={user.login}
               />
-            )}
+            ))}
           </>
-        </PaginationPageNumberContainer>
-        <ForwardButton
-          onClick={handleForwardButtonClick}
-          disabled={data?.total_count <= 30 || data?.total_count - pageSet * 30 <= 0 || 1000 - pageSet * 30 <= 0 ? true : false}
-        >Forward</ForwardButton>
-      </PaginationContainer>
+        </UserListContainer>
+        <PaginationContainer display={paginationDisplay ? 'flex' : 'none'}>
+          <BackButton onClick={handleBackButtonClick} disabled={pageSet <= 10 ? true : false}>Back</BackButton>
+          <PaginationPageNumberContainer onClick={handlePageClick}>
+            <>
+              {pageSet && (
+                // eslint-disable-next-line react/jsx-key
+                <Pagination
+                  key={pageSet}
+                  pageSet={pageSet}
+                  clickedPage={clickedPage}
+                />
+              )}
+            </>
+          </PaginationPageNumberContainer>
+          <ForwardButton
+            onClick={handleForwardButtonClick}
+            disabled={pageSet < 10 ? true : false}
+          >Forward</ForwardButton>
+        </PaginationContainer>
+      </ResultContainer>
     </RootContainer>
   );
 };

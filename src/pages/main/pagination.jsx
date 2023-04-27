@@ -47,5 +47,3 @@ const PaginationItem = ({ pageSet, clickedPage }) => {
 };
 
 export default PaginationItem;
-
-Button
