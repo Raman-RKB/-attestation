@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
-// const GITHUB_TOKEN = "";
+// const GITHUB_TOKEN = "YOUR_PERSONAL_ACCESS_TOKEN_HERE";
 
 // const addAuthorizationHeader = (headers) => {
 //   headers.set("Authorization", `Token ${GITHUB_TOKEN}`);
