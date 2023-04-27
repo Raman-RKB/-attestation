@@ -117,6 +117,7 @@ export const UserDetailLabel = styled.div`
 export const PaginationContainer = styled.div`
     display: ${props => props.display};
     margin-top: 10px;
+    justify-content: center;
 `;
 
 export const BackButton = styled.button`
@@ -154,7 +155,6 @@ export const ForwardButton = styled.button`
 
 export const PaginationPageNumberContainer = styled.div`
   display: flex;
-  flex: 1;
     justify-content: flex-start;
     flex-wrap: nowrap;
     overflow-x: hidden;
@@ -206,7 +206,7 @@ export const RadioButtonContainer = styled.div`
 
 export const ResultContainer = styled.div`
 display: ${props => props.display};
-  width: 50vw;
+  width:30vw;
 `;
 
 export const Input = styled.input`
@@ -219,4 +219,3 @@ font-size: 35px;
     color: red;
     font-weight: bold;
 `;
-

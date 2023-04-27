@@ -20,11 +20,12 @@ const User = ({ login }) => {
     useEffect(() => {
         if (data) {
             dispatch(pushUsersDataToStore(data));
+              console.log(data)
         }
     }, [data]);
 
     return (
-        <UserLogin onClick={getUserData}>{login}</UserLogin>
+        <UserLogin onClick={getUserData}>{login}{data?.login}</UserLogin>
     );
 };
 
