@@ -31,6 +31,3 @@ src/App.js: the main app component
 Contributions are always welcome! If you want to contribute, please fork the repository and create a pull request.
 <<<<<<< HEAD
 ## Youtube link tutorial https://youtu.be/I_CSrLan0mE
-=======
-## Youtube link tutorial 
->>>>>>> df0e5c97557675784e0cdb6247efe9ea51c98a09
