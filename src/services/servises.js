@@ -1,20 +1,20 @@
 /* eslint-disable no-unused-vars */
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
-const GITHUB_TOKEN = "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";
+// const GITHUB_TOKEN = "";
 
-const addAuthorizationHeader = (headers) => {
-  headers.set("Authorization", `Token ${GITHUB_TOKEN}`);
-};
+// const addAuthorizationHeader = (headers) => {
+//   headers.set("Authorization", `Token ${GITHUB_TOKEN}`);
+// };
 
 export const GitSearchApp = createApi({
   reducerPath: "appApi",
   baseQuery: fetchBaseQuery({
     baseUrl: "https://api.github.com/",
-    prepareHeaders: (headers) => {
-      addAuthorizationHeader(headers);
-      return headers;
-    },
+    // prepareHeaders: (headers) => {
+    //   addAuthorizationHeader(headers);
+    //   return headers;
+    // },
   }),
 
   endpoints: (builder) => ({
