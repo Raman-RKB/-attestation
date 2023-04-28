@@ -66,13 +66,10 @@ const MyComponent = () => {
     const target = event?.target.textContent;
     setClickedPage(+target);
     if (error && !SortAsc && !SortDesc && data) {
-      console.log('Попало в error');
       setClickedPage(previousClickedPageRef.current ? previousClickedPageRef.current : 1);
     } else if (SortAsc && usersSortAscErr) {
-      console.log('Попало в error');
       setClickedPage(previousClickedPageRef?.current ? previousClickedPageRef.current : 1);
     } else if (SortDesc && usersSortDescErr) {
-      console.log('Попало в error');
       setClickedPage(previousClickedPageRef?.current ? previousClickedPageRef.current : 1);
     }
     previousClickedPageRef.current = clickedPage;
